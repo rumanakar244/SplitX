@@ -1,0 +1,2595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SplitX - Split Expenses, Settle Instantly</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'mint': {
+                            50: '#EAF9F2',
+                            100: '#D5F3E5',
+                            200: '#ABE7CB',
+                            300: '#81DBB1',
+                            400: '#57CF97',
+                            500: '#2DC37D',
+                            600: '#249C64',
+                            700: '#1B754B',
+                            800: '#124E32',
+                            900: '#092719'
+                        },
+                        'sage': {
+                            50: '#f6f7f4',
+                            100: '#e8ebe3',
+                            200: '#d1d8c8',
+                            300: '#b0bfa3',
+                            400: '#8fa37c',
+                            500: '#738660',
+                            600: '#5a6b4a',
+                            700: '#47553c',
+                            800: '#3a4532',
+                            900: '#323a2c'
+                        },
+                        'beige': {
+                            50: '#fdfcfa',
+                            100: '#f9f6f0',
+                            200: '#f1ebe0',
+                            300: '#e6dbc8',
+                            400: '#d8c7a8',
+                            500: '#c9b088',
+                            600: '#b89968',
+                            700: '#9d7f4f',
+                            800: '#826742',
+                            900: '#6b5538'
+                        },
+                        'splitx-green': '#0E5113',
+                        'splitx-light': '#EAF9F2'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        @keyframes confetti {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #0E5113;
+            animation: confetti 3s linear infinite;
+        }
+        .confetti:nth-child(odd) {
+            background: #2DC37D;
+            width: 8px;
+            height: 8px;
+            animation-duration: 2.5s;
+        }
+        .confetti:nth-child(3n) {
+            background: #57CF97;
+            width: 6px;
+            height: 6px;
+            animation-duration: 3.5s;
+        }
+        .dropdown-enter { max-height: 0; opacity: 0; }
+        .dropdown-enter-active { max-height: 500px; opacity: 1; transition: all 0.3s ease-in-out; }
+        .dropdown-exit { max-height: 500px; opacity: 1; }
+        .dropdown-exit-active { max-height: 0; opacity: 0; transition: all 0.3s ease-in-out; }
+        .modal-backdrop { backdrop-filter: blur(4px); }
+    </style>
+</head>
+<body class="bg-splitx-light min-h-screen">
+    <!-- Landing Page -->
+    <div id="landing-page" class="page">
+        <!-- Header -->
+        <header class="bg-splitx-light px-4 py-6">
+            <div class="max-w-7xl mx-auto flex items-center justify-between">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-splitx-green rounded-full flex items-center justify-center">
+                        <span class="text-white font-bold text-lg">S</span>
+                    </div>
+                    <span class="text-2xl font-bold text-black">SplitX</span>
+                </div>
+                
+                <!-- Right -->
+                <button onclick="showSignIn()" class="text-gray-600 hover:text-gray-800 font-medium">Sign in</button>
+            </div>
+        </header>
+        <!-- Hero Section -->
+        <section class="px-4 py-16 text-center">
+            <div class="max-w-4xl mx-auto">
+                <h1 class="text-6xl md:text-7xl font-bold text-black mb-4">
+                    Split expenses
+                </h1>
+                <h2 class="text-6xl md:text-7xl font-bold text-splitx-green mb-8">
+                    Settle instantly
+                </h2>
+                <p class="text-xl text-gray-600 mb-12 max-w-2xl mx-auto">
+                    The easiest way to track group expenses and settle up with friends, roommates and travel buddies.
+                </p>
+                <button onclick="showCreateUserModal()" class="bg-splitx-green text-white px-12 py-4 rounded-full text-xl font-semibold hover:bg-green-800 transition-colors shadow-lg">
+                    Get Started
+                </button>
+            </div>
+        </section>
+        <!-- Feature Cards -->
+        <section class="px-4 py-16">
+            <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="bg-gray-100 rounded-2xl p-8 text-center">
+                    <div class="w-16 h-16 bg-mint-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <span class="text-2xl">₹</span>
+                    </div>
+                    <h3 class="text-2xl font-bold text-black mb-4">Track Everything</h3>
+                    <p class="text-gray-600 text-lg">
+                        Add expenses instantly and see who owes what in real time
+                    </p>
+                </div>
+                <!-- Card 2 -->
+                <div class="bg-gray-100 rounded-2xl p-8 text-center">
+                    <div class="w-16 h-16 bg-mint-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-8 h-8 text-splitx-green" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2L2 7v10c0 5.55 3.84 9.74 9 11 5.16-1.26 9-5.45 9-11V7l-10-5z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-black mb-4">Smart Splitting</h3>
+                    <p class="text-gray-600 text-lg">
+                        Automatically calculate who owes whom with minimal transfer
+                    </p>
+                </div>
+                <!-- Card 3 -->
+                <div class="bg-gray-100 rounded-2xl p-8 text-center">
+                    <div class="w-16 h-16 bg-mint-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-8 h-8 text-splitx-green" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-black mb-4">Instant Payments</h3>
+                    <p class="text-gray-600 text-lg">
+                        Pay directly through UPI with one-click settlement buttons
+                    </p>
+                </div>
+            </div>
+        </section>
+        <!-- Image Section -->
+        <section class="px-4 py-16">
+            <div class="max-w-4xl mx-auto text-center">
+                <div class="bg-gradient-to-br from-mint-100 to-mint-200 rounded-3xl p-16 mb-8">
+                    <div class="text-8xl mb-4">👥</div>
+                    <h3 class="text-3xl font-bold text-black mb-4">Friends splitting bills together</h3>
+                    <p class="text-xl text-gray-600">Simple, fair, and transparent expense sharing</p>
+                </div>
+                <button onclick="showCreateUserModal()" class="bg-splitx-green text-white px-12 py-4 rounded-full text-xl font-semibold hover:bg-green-800 transition-colors shadow-lg">
+                    Start Tracking Now
+                </button>
+            </div>
+        </section>
+        <!-- Floating Chatbot -->
+        <div id="chatbot-container" class="fixed bottom-6 right-6 z-50">
+            <!-- Chatbot Button -->
+            <button id="chatbot-button" onclick="toggleChatbot()" class="bg-splitx-green text-white w-16 h-16 rounded-full shadow-2xl hover:bg-green-800 transition-all duration-300 transform hover:scale-110 flex items-center justify-center group">
+                <svg class="w-8 h-8 transition-transform group-hover:scale-110" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+                </svg>
+                <!-- Pulse animation -->
+                <div class="absolute inset-0 rounded-full bg-splitx-green animate-ping opacity-20"></div>
+            </button>
+            <!-- Chat Window -->
+            <div id="chatbot-window" class="hidden absolute bottom-20 right-0 w-80 h-96 bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden">
+                <!-- Chat Header -->
+                <div class="bg-splitx-green text-white p-4 flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                            <span class="text-sm">🤖</span>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold">SplitX Assistant</h3>
+                            <p class="text-xs opacity-90">Here to help you!</p>
+                        </div>
+                    </div>
+                    <button onclick="toggleChatbot()" class="text-white/80 hover:text-white">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                        </svg>
+                    </button>
+                </div>
+                <!-- Chat Messages -->
+                <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-3">
+                    <div class="flex items-start space-x-2">
+                        <div class="w-6 h-6 bg-splitx-green rounded-full flex items-center justify-center text-white text-xs">🤖</div>
+                        <div class="bg-gray-100 rounded-2xl rounded-tl-sm p-3 max-w-xs">
+                            <p class="text-sm text-gray-800">Hi! I'm your SplitX assistant. I can help you:</p>
+                            <ul class="text-xs text-gray-600 mt-2 space-y-1">
+                                <li>• Create your account</li>
+                                <li>• Understand how splitting works</li>
+                                <li>• Navigate the app</li>
+                                <li>• Answer any questions</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Quick Actions -->
+                <div class="p-3 border-t border-gray-100">
+                    <div class="grid grid-cols-2 gap-2 mb-3">
+                        <button onclick="sendQuickMessage('How do I create an account?')" class="bg-gray-100 hover:bg-gray-200 text-xs p-2 rounded-lg transition-colors">
+                            Create Account
+                        </button>
+                        <button onclick="sendQuickMessage('How does expense splitting work?')" class="bg-gray-100 hover:bg-gray-200 text-xs p-2 rounded-lg transition-colors">
+                            How It Works
+                        </button>
+                    </div>
+                    
+                    <!-- Chat Input -->
+                    <div class="flex space-x-2">
+                        <input type="text" id="chat-input" placeholder="Ask me anything..." class="flex-1 px-3 py-2 border border-gray-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-splitx-green focus:border-transparent">
+                        <button onclick="sendMessage()" class="bg-splitx-green text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-green-800 transition-colors">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- App Container (All app pages) -->
+    <div id="app-container" class="hidden">
+        <!-- Navigation -->
+        <nav class="bg-white/80 backdrop-blur-sm shadow-lg border-b border-sage-200 sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <h1 class="text-2xl font-bold bg-gradient-to-r from-sage-600 to-sage-800 bg-clip-text text-transparent">
+                                🌿 SplitX
+                            </h1>
+                        </div>
+                        <div class="hidden md:ml-6 md:flex md:space-x-8">
+                            <button onclick="showAppPage('dashboard')" class="nav-link text-sage-700 hover:text-sage-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">Dashboard</button>
+                            <button onclick="showAppPage('groups')" class="nav-link text-sage-700 hover:text-sage-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">Groups</button>
+                            <button onclick="showAppPage('expenses')" class="nav-link text-sage-700 hover:text-sage-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">Expenses</button>
+                            <button onclick="showAppPage('settlements')" class="nav-link text-sage-700 hover:text-sage-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">Settlements</button>
+                            <button onclick="showAppPage('profile')" class="nav-link text-sage-700 hover:text-sage-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">Profile</button>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button onclick="showAppPage('notifications')" class="text-sage-600 hover:text-sage-800 p-2 rounded-full hover:bg-sage-100 transition-colors">
+                            🔔
+                        </button>
+                        <button onclick="logOut()" class="text-sage-600 hover:text-sage-800 text-sm font-medium">
+                            Log Out
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Loading Spinner -->
+            <div id="loading" class="hidden fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center">
+                <div class="bg-white rounded-xl p-6 shadow-xl">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-sage-600 mx-auto"></div>
+                    <p class="text-sage-700 mt-2 text-sm">Loading...</p>
+                </div>
+            </div>
+            <!-- Dashboard Page -->
+            <div id="dashboard-page" class="app-page">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-sage-800 mb-2">Welcome back! 👋</h2>
+                    <p class="text-sage-600">Here's your expense overview</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white rounded-xl shadow-lg p-6 border border-sage-100">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-sage-100 text-sage-600">💰</div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-sage-600">Total Balance</p>
+                                <p class="text-2xl font-bold text-sage-800" id="total-balance">₹0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 border border-sage-100">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-beige-100 text-beige-600">👥</div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-sage-600">Active Groups</p>
+                                <p class="text-2xl font-bold text-sage-800" id="active-groups">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 border border-sage-100">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-sage-100 text-sage-600">📊</div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-sage-600">This Month</p>
+                                <p class="text-2xl font-bold text-sage-800" id="month-expenses">₹0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 border border-sage-100">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-beige-100 text-beige-600">⭐</div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-sage-600">Trust Score</p>
+                                <p class="text-2xl font-bold text-sage-800" id="trust-score">100</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white rounded-xl shadow-lg p-6 border border-sage-100">
+                        <h3 class="text-xl font-semibold text-sage-800 mb-4">Recent Groups</h3>
+                        <div id="recent-groups" class="space-y-3">
+                            <!-- Groups will be loaded here -->
+                        </div>
+                        <button onclick="showAppPage('groups')" class="mt-4 w-full bg-sage-600 text-white py-2 px-4 rounded-lg hover:bg-sage-700 transition-colors">
+                            View All Groups
+                        </button>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 border border-sage-100">
+                        <h3 class="text-xl font-semibold text-sage-800 mb-4">Quick Actions</h3>
+                        <div class="space-y-4">
+                            <div class="bg-[#EAF5ED] rounded-xl p-4">
+                                <h4 class="text-md font-semibold text-gray-800 mb-3">Create New Group</h4>
+                                <div class="space-y-3">
+                                    <input 
+                                        type="text" 
+                                        id="quickGroupNameInput"
+                                        placeholder="eg. team 1" 
+                                        class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-400 focus:border-transparent outline-none text-gray-800 text-sm"
+                                    >
+                                    <button 
+                                        onclick="toggleQuickGroupMembers()" 
+                                        class="w-full flex items-center justify-between px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors text-sm"
+                                    >
+                                        <span class="text-gray-700 font-medium">Add Members</span>
+                                        <svg id="quickGroupArrow" class="w-4 h-4 text-gray-500 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                        </svg>
+                                    </button>
+                                    
+                                    <!-- Expandable Members Section -->
+                                    <div id="quickGroupMembers" class="hidden overflow-hidden transition-all duration-300">
+                                        <div class="bg-gray-50 rounded-lg p-3 space-y-2">
+                                            <button 
+                                                onclick="addQuickMember()" 
+                                                class="w-full px-3 py-2 bg-[#DEE1E6] text-gray-800 rounded-lg hover:bg-gray-300 transition-colors flex items-center justify-center font-medium text-sm"
+                                            >
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                                </svg>
+                                                Add Member
+                                            </button>
+                                            
+                                            <div id="quickMembersList" class="space-y-2">
+                                                <!-- Members will be added here -->
+                                            </div>
+                                            
+                                            <button 
+                                                onclick="createQuickGroup()" 
+                                                class="w-full px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium text-sm"
+                                            >
+                                                Create Group
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-[#EAF5ED] rounded-xl p-4">
+                                <h4 class="text-md font-semibold text-gray-800 mb-3">Manage Expenses</h4>
+                                <button 
+                                    onclick="toggleQuickExistingGroups()" 
+                                    class="w-full flex items-center justify-between px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors text-sm mb-3"
+                                >
+                                    <span class="text-gray-700 font-medium">View All Groups</span>
+                                    <svg id="quickExistingGroupsArrow" class="w-4 h-4 text-gray-500 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
+                                
+                                <div id="quickExistingGroupsList" class="hidden space-y-2">
+                                    <!-- Groups will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Groups Page -->
+            <div id="groups-page" class="app-page hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h2 class="text-3xl font-bold text-sage-800 mb-2">Groups 👥</h2>
+                        <p class="text-sage-600">Manage your expense groups</p>
+                    </div>
+                    <button onclick="showCreateGroup()" class="bg-sage-600 text-white px-6 py-3 rounded-lg hover:bg-sage-700 transition-colors shadow-lg">
+                        ➕ Create Group
+                    </button>
+                </div>
+                
+                <div id="groups-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Groups will be loaded here -->
+                </div>
+            </div>
+            <!-- Group Details Page -->
+            <div id="group-details-page" class="app-page hidden">
+                <div class="mb-8">
+                    <button onclick="showAppPage('groups')" class="text-sage-600 hover:text-sage-800 mb-4 flex items-center">
+                        ← Back to Groups
+                    </button>
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 id="group-details-name" class="text-3xl font-bold text-sage-800 mb-2"></h2>
+                            <p class="text-sage-600">Group expenses and transactions</p>
+                        </div>
+                        <div class="flex space-x-3">
+                            <button onclick="showAddMember()" class="bg-beige-600 text-white px-4 py-2 rounded-lg hover:bg-beige-700 transition-colors">
+                                Add Member
+                            </button>
+                            <button onclick="showDeleteMember()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
+                                Delete Member
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="bg-white rounded-xl shadow-lg p-6 border border-sage-100">
+                        <h3 class="text-lg font-semibold text-sage-800 mb-4">Members</h3>
+                        <div id="group-members-list" class="space-y-2">
+                            <!-- Members will be loaded here -->
+                        </div>
+                    </div>
+                    <div class="lg:col-span-2 space-y-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6 border border-sage-100">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold text-sage-800">Expense Management</h3>
+                                <div class="flex space-x-2">
+                                    <button onclick="calculateGroupExpenses()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm">
+                                        Calculate Split
+                                    </button>
+                                    <button onclick="exportExpenseData()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors text-sm">
+                                        Export Data
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Expense Table -->
+                            <div class="overflow-x-auto">
+                                <table class="w-full" id="groupExpenseTable">
+                                    <thead>
+                                        <tr class="border-b border-gray-200">
+                                            <th class="text-left py-3 px-4 font-medium text-gray-700 min-w-[200px]">Names</th>
+                                            <th class="text-left py-3 px-4 font-medium text-gray-700 min-w-[150px]">Expenses</th>
+                                            <th class="text-center py-3 px-4 font-medium text-gray-700 w-16">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="groupExpenseTableBody">
+                                        <!-- Expense rows will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-lg p-6 border border-sage-100">
+                            <h3 class="text-lg font-semibold text-sage-800 mb-4">Recent Expenses</h3>
+                            <div id="group-expenses-list" class="space-y-3">
+                                <!-- Expenses will be loaded here -->
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-lg p-6 border border-sage-100">
+                            <h3 class="text-lg font-semibold text-sage-800 mb-4">Transactions</h3>
+                            <div id="group-transactions-list" class="space-y-3">
+                                <!-- Transactions will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expenses Page -->
+            <div id="expenses-page" class="app-page hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h2 class="text-3xl font-bold text-sage-800 mb-2">Expenses 💸</h2>
+                        <p class="text-sage-600">Track all your expenses</p>
+                    </div>
+                    <button onclick="showAddExpense()" class="bg-sage-600 text-white px-6 py-3 rounded-lg hover:bg-sage-700 transition-colors shadow-lg">
+                        ➕ Add Expense
+                    </button>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-lg border border-sage-100">
+                    <div class="p-6">
+                        <div id="expenses-list" class="space-y-4">
+                            <!-- Expenses will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Settlements Page -->
+            <div id="settlements-page" class="app-page hidden">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-sage-800 mb-2">Settlements 🤝</h2>
+                    <p class="text-sage-600">See who owes what and settle up</p>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white rounded-xl shadow-lg p-6 border border-sage-100">
+                        <h3 class="text-xl font-semibold text-sage-800 mb-4">Your Balances</h3>
+                        <div id="user-balances" class="space-y-3">
+                            <!-- Balances will be loaded here -->
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 border border-sage-100">
+                        <h3 class="text-xl font-semibold text-sage-800 mb-4">Suggested Settlements</h3>
+                        <div id="suggested-settlements" class="space-y-3">
+                            <!-- Settlements will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-8 bg-white rounded-xl shadow-lg p-6 border border-sage-100">
+                    <h3 class="text-xl font-semibold text-sage-800 mb-4">Record Transaction</h3>
+                    <form id="transaction-form" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-sage-700 mb-2">Payer</label>
+                            <select id="transaction-payer" required class="w-full px-4 py-3 border border-sage-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent">
+                                <option value="">Select payer...</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-sage-700 mb-2">Receiver</label>
+                            <select id="transaction-receiver" required class="w-full px-4 py-3 border border-sage-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent">
+                                <option value="">Select receiver...</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-sage-700 mb-2">Amount (₹)</label>
+                            <input type="number" id="transaction-amount" required step="0.01" class="w-full px-4 py-3 border border-sage-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent">
+                        </div>
+                        <div class="flex items-end">
+                            <button type="submit" class="w-full bg-sage-600 text-white px-4 py-3 rounded-lg hover:bg-sage-700 transition-colors">
+                                Record Transaction
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- Profile Page -->
+            <div id="profile-page" class="app-page hidden">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-sage-800 mb-2">Profile 👤</h2>
+                    <p class="text-sage-600">Manage your account information</p>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white rounded-xl shadow-lg p-6 border border-sage-100">
+                        <h3 class="text-xl font-semibold text-sage-800 mb-4">Account Information</h3>
+                        <form id="profile-form" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-sage-700 mb-2">Name</label>
+                                <input type="text" id="profile-name" required class="w-full px-4 py-3 border border-sage-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-sage-700 mb-2">Email</label>
+                                <input type="email" id="profile-email" required class="w-full px-4 py-3 border border-sage-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent">
+                            </div>
+                            <div class="flex space-x-3 pt-4">
+                                <button type="submit" class="bg-sage-600 text-white px-6 py-3 rounded-lg hover:bg-sage-700 transition-colors">
+                                    Update Profile
+                                </button>
+                                <button type="button" onclick="deleteUser()" class="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors">
+                                    Delete Account
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 border border-sage-100">
+                        <h3 class="text-xl font-semibold text-sage-800 mb-4">Account Stats</h3>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center p-4 bg-sage-50 rounded-lg">
+                                <span class="text-sage-700">Trust Score</span>
+                                <span id="profile-trust-score" class="font-semibold text-sage-800">100</span>
+                            </div>
+                            <div class="flex justify-between items-center p-4 bg-beige-50 rounded-lg">
+                                <span class="text-sage-700">Total Groups</span>
+                                <span id="profile-groups-count" class="font-semibold text-sage-800">0</span>
+                            </div>
+                            <div id="profile-badges" class="space-y-2">
+                                <h4 class="text-sm font-medium text-sage-700">Badges</h4>
+                                <div class="flex flex-wrap gap-2">
+                                    <!-- Badges will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Notifications Page -->
+            <div id="notifications-page" class="app-page hidden">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-sage-800 mb-2">Notifications 🔔</h2>
+                    <p class="text-sage-600">Stay updated with your expenses</p>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-lg p-8 border border-sage-100 text-center">
+                    <div class="text-6xl mb-4">⏰</div>
+                    <h3 class="text-xl font-semibold text-sage-800 mb-2">Daily Reminders</h3>
+                    <p class="text-sage-600 mb-6">You will receive daily reminders at 9 AM (Los Angeles time) to help you stay on top of your expenses and settlements.</p>
+                    <div class="bg-sage-50 rounded-lg p-4 text-left">
+                        <h4 class="font-medium text-sage-800 mb-2">Reminder includes:</h4>
+                        <ul class="text-sage-600 space-y-1">
+                            <li>• Outstanding balances</li>
+                            <li>• Recent group activity</li>
+                            <li>• Pending settlements</li>
+                            <li>• Trust score updates</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <!-- Create User Modal -->
+    <div id="create-user-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+            <div class="text-center mb-6">
+                <h3 class="text-2xl font-bold text-sage-800 mb-2">Welcome to SplitX! 🌿</h3>
+                <p class="text-sage-600">Create your account to get started</p>
+            </div>
+            <form id="create-user-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-sage-700 mb-2">Name</label>
+                    <input type="text" id="user-name" required class="w-full px-4 py-3 border border-sage-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-sage-700 mb-2">Email</label>
+                    <input type="email" id="user-email" required class="w-full px-4 py-3 border border-sage-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent">
+                </div>
+                <button type="submit" class="w-full bg-sage-600 text-white px-4 py-3 rounded-lg hover:bg-sage-700 transition-colors">
+                    Create Account
+                </button>
+            </form>
+        </div>
+    </div>
+    <!-- Create Group Modal -->
+    <div id="create-group-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-sage-800">Create New Group</h3>
+                <button onclick="hideCreateGroup()" class="text-sage-400 hover:text-sage-600 text-2xl">&times;</button>
+            </div>
+            <form id="create-group-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-sage-700 mb-2">Group Name</label>
+                    <input type="text" id="group-name" required class="w-full px-4 py-3 border border-sage-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-sage-700 mb-2">Members (comma-separated emails)</label>
+                    <textarea id="group-members" rows="3" placeholder="john@example.com, jane@example.com" class="w-full px-4 py-3 border border-sage-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"></textarea>
+                </div>
+                <div class="flex space-x-3 pt-4">
+                    <button type="button" onclick="hideCreateGroup()" class="flex-1 px-4 py-3 border border-sage-300 text-sage-700 rounded-lg hover:bg-sage-50 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 bg-sage-600 text-white px-4 py-3 rounded-lg hover:bg-sage-700 transition-colors">
+                        Create Group
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Add Member Modal -->
+    <div id="add-member-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-sage-800">Add Member</h3>
+                <button onclick="hideAddMember()" class="text-sage-400 hover:text-sage-600 text-2xl">&times;</button>
+            </div>
+            <form id="add-member-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-sage-700 mb-2">Member Email</label>
+                    <input type="email" id="member-email" required class="w-full px-4 py-3 border border-sage-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent">
+                </div>
+                <div class="flex space-x-3 pt-4">
+                    <button type="button" onclick="hideAddMember()" class="flex-1 px-4 py-3 border border-sage-300 text-sage-700 rounded-lg hover:bg-sage-50 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 bg-sage-600 text-white px-4 py-3 rounded-lg hover:bg-sage-700 transition-colors">
+                        Add Member
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Delete Member Modal -->
+    <div id="delete-member-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-sage-800">Delete Member</h3>
+                <button onclick="hideDeleteMember()" class="text-sage-400 hover:text-sage-600 text-2xl">&times;</button>
+            </div>
+            <form id="delete-member-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-sage-700 mb-2">Select Member</label>
+                    <select id="delete-member-select" required class="w-full px-4 py-3 border border-sage-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent">
+                        <option value="">Select member...</option>
+                    </select>
+                </div>
+                <div class="flex space-x-3 pt-4">
+                    <button type="button" onclick="hideDeleteMember()" class="flex-1 px-4 py-3 border border-sage-300 text-sage-700 rounded-lg hover:bg-sage-50 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 bg-red-600 text-white px-4 py-3 rounded-lg hover:bg-red-700 transition-colors">
+                        Delete Member
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Add Expense Modal -->
+    <div id="add-expense-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-sage-800">Add Expense</h3>
+                <button onclick="hideAddExpense()" class="text-sage-400 hover:text-sage-600 text-2xl">&times;</button>
+            </div>
+            <form id="add-expense-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-sage-700 mb-2">Amount (₹)</label>
+                    <input type="number" id="expense-amount" required step="0.01" class="w-full px-4 py-3 border border-sage-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-sage-700 mb-2">Description</label>
+                    <input type="text" id="expense-description" required class="w-full px-4 py-3 border border-sage-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-sage-700 mb-2">Paid By</label>
+                    <select id="expense-payer" required class="w-full px-4 py-3 border border-sage-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent">
+                        <option value="">Select member...</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-sage-700 mb-2">Group</label>
+                    <select id="expense-group" required class="w-full px-4 py-3 border border-sage-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent">
+                        <option value="">Select group...</option>
+                    </select>
+                </div>
+                <div class="flex space-x-3 pt-4">
+                    <button type="button" onclick="hideAddExpense()" class="flex-1 px-4 py-3 border border-sage-300 text-sage-700 rounded-lg hover:bg-sage-50 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 bg-sage-600 text-white px-4 py-3 rounded-lg hover:bg-sage-700 transition-colors">
+                        Add Expense
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Sign In Modal -->
+    <div id="signin-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-black">Sign In</h3>
+                <button onclick="hideSignIn()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            </div>
+            <form id="signin-form" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <input type="email" id="signin-email" required class="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-splitx-green focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <input type="password" id="signin-password" required class="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-splitx-green focus:border-transparent">
+                </div>
+                <button type="submit" class="w-full bg-splitx-green text-white py-3 rounded-2xl font-semibold hover:bg-green-800 transition-colors">
+                    Sign In
+                </button>
+                <div class="text-center">
+                    <button type="button" onclick="showCreateUserModal(); hideSignIn();" class="text-splitx-green hover:underline">Don't have an account? Sign up</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Success Page -->
+    <div id="success-page" class="page hidden">
+        <div class="min-h-screen bg-splitx-light flex items-center justify-center px-4 relative overflow-hidden">
+            <!-- Confetti Animation -->
+            <div id="confetti-container"></div>
+            
+            <!-- Success Message -->
+            <div class="text-center">
+                <div class="text-8xl mb-8">🎉</div>
+                <h1 class="text-6xl md:text-7xl font-bold text-black mb-4">
+                    Congratulations!
+                </h1>
+                <p class="text-2xl text-gray-600 mb-8">
+                    Group is successfully created 🎉
+                </p>
+                <div class="space-y-4">
+                    <button onclick="enterApp()" class="block w-full max-w-md mx-auto bg-splitx-green text-white py-4 px-8 rounded-2xl text-xl font-semibold hover:bg-green-800 transition-colors shadow-lg">
+                        Go to Dashboard
+                    </button>
+                    <button onclick="showCreateGroup()" class="block w-full max-w-md mx-auto bg-white text-splitx-green py-4 px-8 rounded-2xl text-xl font-semibold hover:bg-gray-50 transition-colors border-2 border-splitx-green">
+                        Create Another Group
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Calculation Results Modal -->
+    <div id="calculationModal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <!-- Modal Header -->
+            <div class="bg-[#EAF5ED] px-6 py-4 flex items-center justify-between rounded-t-2xl">
+                <h3 class="text-xl font-semibold text-gray-800">Expense Split Calculation</h3>
+                <button onclick="closeCalculationModal()" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <!-- Modal Content -->
+            <div class="p-6">
+                <!-- Summary Section -->
+                <div class="mb-6 p-4 bg-gray-50 rounded-xl">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-3">Summary</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-green-600" id="totalAmount">₹0</div>
+                            <div class="text-sm text-gray-600">Total Expenses</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-blue-600" id="perPersonAmount">₹0</div>
+                            <div class="text-sm text-gray-600">Per Person</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-purple-600" id="memberCount">0</div>
+                            <div class="text-sm text-gray-600">Members</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Individual Breakdown -->
+                <div class="mb-6">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-3">Individual Breakdown</h4>
+                    <div id="individualBreakdown" class="space-y-3">
+                        <!-- Individual member calculations will be inserted here -->
+                    </div>
+                </div>
+                <!-- Settlement Instructions -->
+                <div class="mb-6">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-3">Who Owes Whom</h4>
+                    <div id="settlementInstructions" class="space-y-2">
+                        <!-- Settlement instructions will be inserted here -->
+                    </div>
+                </div>
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-3 justify-end">
+                    <button 
+                        onclick="exportCalculation()" 
+                        class="px-6 py-2 bg-[#DEE1E6] text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+                    >
+                        Export Results
+                    </button>
+                    <button 
+                        onclick="closeCalculationModal()" 
+                        class="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium"
+                    >
+                        Done
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Success/Error Messages -->
+    <div id="message-container" class="fixed top-20 right-4 z-50 space-y-2"></div>
+    <script>
+        // Global state
+        let currentUser = null;
+        let currentGroup = null;
+        let groups = [];
+        let expenses = [];
+        let settlements = [];
+        let isInApp = false;
+        
+        // API Base URL
+        const API_BASE = 'http://localhost:4000';
+        
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+        
+        async function initializeApp() {
+            // Check if user exists in localStorage
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                enterApp();
+            } else {
+                showLanding();
+            }
+        }
+        
+        // Page Navigation
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.add('hidden');
+            });
+            document.getElementById(pageId).classList.remove('hidden');
+        }
+        
+        function showAppPage(pageName) {
+            if (!isInApp) return;
+            
+            // Hide all app pages
+            document.querySelectorAll('.app-page').forEach(page => {
+                page.classList.add('hidden');
+            });
+            
+            // Show selected page
+            document.getElementById(`${pageName}-page`).classList.remove('hidden');
+            
+            // Update navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('bg-sage-100', 'text-sage-900');
+            });
+            
+            // Load page data
+            switch(pageName) {
+                case 'dashboard':
+                    loadDashboard();
+                    break;
+                case 'groups':
+                    loadGroups();
+                    break;
+                case 'expenses':
+                    loadExpenses();
+                    break;
+                case 'settlements':
+                    loadSettlements();
+                    break;
+                case 'profile':
+                    loadProfile();
+                    break;
+            }
+        }
+        
+        function showLanding() {
+            isInApp = false;
+            document.getElementById('app-container').classList.add('hidden');
+            showPage('landing-page');
+        }
+        
+        function enterApp() {
+            isInApp = true;
+            document.getElementById('app-container').classList.remove('hidden');
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.add('hidden');
+            });
+            loadDashboard();
+        }
+        
+        function logOut() {
+            localStorage.removeItem('currentUser');
+            currentUser = null;
+            groups = [];
+            expenses = [];
+            settlements = [];
+            showLanding();
+        }
+        
+        // User Management
+        async function createUser(name, email) {
+            try {
+                showLoading();
+                const response = await fetch(`${API_BASE}/users`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, email }),
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to create user');
+                }
+                
+                const user = await response.json();
+                currentUser = user;
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                showMessage('Account created successfully!', 'success');
+                hideCreateUserModal();
+                enterApp();
+            } catch (error) {
+                showMessage('Failed to create user: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        async function updateUser(name, email) {
+            try {
+                showLoading();
+                const response = await fetch(`${API_BASE}/users/${currentUser.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, email }),
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to update user');
+                }
+                
+                const user = await response.json();
+                currentUser = user;
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                showMessage('Profile updated successfully!', 'success');
+            } catch (error) {
+                showMessage('Failed to update profile: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        async function deleteUser() {
+            if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+                try {
+                    showLoading();
+                    const response = await fetch(`${API_BASE}/users/${currentUser.id}`, {
+                        method: 'DELETE',
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to delete user');
+                    }
+                    
+                    localStorage.removeItem('currentUser');
+                    currentUser = null;
+                    showMessage('Account deleted successfully', 'success');
+                    showLanding();
+                } catch (error) {
+                    showMessage('Failed to delete account: ' + error.message, 'error');
+                } finally {
+                    hideLoading();
+                }
+            }
+        }
+        
+        // Group Management
+        async function loadGroups() {
+            try {
+                showLoading();
+                const response = await fetch(`${API_BASE}/groups`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load groups');
+                }
+                
+                groups = await response.json();
+                renderGroups();
+                renderRecentGroups();
+                renderQuickExistingGroups();
+            } catch (error) {
+                showMessage('Failed to load groups: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        async function createGroup(name, members) {
+            try {
+                showLoading();
+                // Create users for members if they don't exist
+                const memberIds = [];
+                const memberEmails = members.split(',').map(m => m.trim()).filter(m => m);
+                
+                for (const email of memberEmails) {
+                    try {
+                        const userResponse = await fetch(`${API_BASE}/users`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ name: email.split('@')[0], email }),
+                        });
+                        
+                        if (userResponse.ok) {
+                            const user = await userResponse.json();
+                            memberIds.push(user._id);
+                        }
+                    } catch (error) {
+                        console.error('Error creating user:', error);
+                    }
+                }
+                
+                // Add current user to the group
+                if (currentUser && !memberIds.includes(currentUser.id)) {
+                    memberIds.push(currentUser.id);
+                }
+                
+                const response = await fetch(`${API_BASE}/groups`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, members: memberIds }),
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to create group');
+                }
+                
+                const group = await response.json();
+                showMessage('Group created successfully!', 'success');
+                hideCreateGroup();
+                
+                // Show success page with confetti
+                showSuccess();
+                
+                await loadGroups();
+            } catch (error) {
+                showMessage('Failed to create group: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        async function loadGroupDetails(groupId) {
+            try {
+                showLoading();
+                const response = await fetch(`${API_BASE}/groups/${groupId}`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load group details');
+                }
+                
+                currentGroup = await response.json();
+                renderGroupDetails();
+                renderGroupExpenseTable();
+                showAppPage('group-details');
+            } catch (error) {
+                showMessage('Failed to load group details: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        async function addMemberToGroup(groupId, memberEmail) {
+            try {
+                showLoading();
+                // Create user if doesn't exist
+                let user;
+                try {
+                    const userResponse = await fetch(`${API_BASE}/users`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ name: memberEmail.split('@')[0], email: memberEmail }),
+                    });
+                    
+                    if (userResponse.ok) {
+                        user = await userResponse.json();
+                    }
+                } catch (error) {
+                    console.error('Error creating user:', error);
+                }
+                
+                if (!user) {
+                    throw new Error('Failed to create or find user');
+                }
+                
+                const response = await fetch(`${API_BASE}/groups/${groupId}/members`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ memberId: user._id }),
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to add member to group');
+                }
+                
+                showMessage('Member added successfully!', 'success');
+                hideAddMember();
+                await loadGroupDetails(groupId);
+            } catch (error) {
+                showMessage('Failed to add member: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        async function deleteMemberFromGroup(groupId, memberId) {
+            try {
+                showLoading();
+                const group = groups.find(g => g._id === groupId);
+                if (!group) {
+                    throw new Error('Group not found');
+                }
+                
+                // Remove member from group
+                group.members = group.members.filter(m => m !== memberId);
+                
+                const response = await fetch(`${API_BASE}/groups/${groupId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(group),
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to delete member from group');
+                }
+                
+                showMessage('Member deleted successfully!', 'success');
+                hideDeleteMember();
+                await loadGroupDetails(groupId);
+            } catch (error) {
+                showMessage('Failed to delete member: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // Quick Actions Functions
+        function toggleQuickGroupMembers() {
+            const dropdown = document.getElementById('quickGroupMembers');
+            const arrow = document.getElementById('quickGroupArrow');
+            
+            dropdown.classList.toggle('hidden');
+            arrow.classList.toggle('rotate-180');
+        }
+        
+        function toggleQuickExistingGroups() {
+            const dropdown = document.getElementById('quickExistingGroupsList');
+            const arrow = document.getElementById('quickExistingGroupsArrow');
+            
+            dropdown.classList.toggle('hidden');
+            arrow.classList.toggle('rotate-180');
+        }
+        
+        function addQuickMember() {
+            const memberEmail = prompt('Enter member email:');
+            if (memberEmail && memberEmail.trim()) {
+                const colors = ['bg-green-400', 'bg-blue-400', 'bg-red-400', 'bg-purple-400', 'bg-yellow-400', 'bg-pink-400'];
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                const initial = memberEmail.charAt(0).toUpperCase();
+                
+                const membersList = document.getElementById('quickMembersList');
+                const memberDiv = document.createElement('div');
+                memberDiv.className = 'flex items-center justify-between p-2 bg-white rounded-lg member-item text-sm';
+                memberDiv.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <div class="w-6 h-6 ${randomColor} rounded-full flex items-center justify-center text-white font-medium text-xs">${initial}</div>
+                        <span class="text-gray-800 font-medium">${memberEmail.trim()}</span>
+                    </div>
+                    <button onclick="removeQuickMember(this)" class="text-gray-400 hover:text-red-500 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                `;
+                
+                membersList.appendChild(memberDiv);
+                showMessage('Member added successfully!', 'success');
+            }
+        }
+        
+        function removeQuickMember(button) {
+            const memberDiv = button.closest('.member-item');
+            memberDiv.remove();
+            showMessage('Member removed', 'success');
+        }
+        
+        async function createQuickGroup() {
+            const groupName = document.getElementById('quickGroupNameInput').value.trim();
+            const memberItems = document.querySelectorAll('#quickMembersList .member-item');
+            
+            if (!groupName) {
+                alert('Please enter a group name');
+                return;
+            }
+            
+            if (memberItems.length === 0) {
+                alert('Please add at least one member');
+                return;
+            }
+            
+            // Collect member emails
+            const memberEmails = Array.from(memberItems).map(item => 
+                item.querySelector('span').textContent
+            );
+            
+            // Create group
+            await createGroup(groupName, memberEmails.join(', '));
+            
+            // Reset form
+            document.getElementById('quickGroupNameInput').value = '';
+            document.getElementById('quickMembersList').innerHTML = '';
+            
+            // Hide dropdown
+            const dropdown = document.getElementById('quickGroupMembers');
+            const arrow = document.getElementById('quickGroupArrow');
+            dropdown.classList.add('hidden');
+            arrow.classList.remove('rotate-180');
+        }
+        
+        function renderQuickExistingGroups() {
+            const container = document.getElementById('quickExistingGroupsList');
+            container.innerHTML = '';
+            
+            if (groups.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-sm p-2">No groups yet</p>';
+                return;
+            }
+            
+            groups.forEach(group => {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'flex items-center justify-between p-2 bg-gray-50 rounded-lg group-item text-sm';
+                groupDiv.innerHTML = `
+                    <span class="text-gray-800 font-medium">${group.name}</span>
+                    <button onclick="selectQuickGroup('${group._id}')" class="text-gray-400 hover:text-green-500 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                `;
+                container.appendChild(groupDiv);
+            });
+        }
+        
+        function selectQuickGroup(groupId) {
+            loadGroupDetails(groupId);
+        }
+        
+        function renderGroupExpenseTable() {
+            if (!currentGroup) return;
+            
+            const tableBody = document.getElementById('groupExpenseTableBody');
+            tableBody.innerHTML = '';
+            
+            if (currentGroup.members && currentGroup.members.length > 0) {
+                const colors = ['bg-green-400', 'bg-blue-400', 'bg-red-400', 'bg-purple-400', 'bg-yellow-400', 'bg-pink-400'];
+                
+                currentGroup.members.forEach((member, index) => {
+                    const color = colors[index % colors.length];
+                    const initial = member.name ? member.name.charAt(0).toUpperCase() : 'U';
+                    
+                    const row = document.createElement('tr');
+                    row.className = 'border-b border-gray-100';
+                    row.innerHTML = `
+                        <td class="py-4 px-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 ${color} rounded-full flex items-center justify-center text-white font-medium">${initial}</div>
+                                <span class="text-gray-800 font-medium">${member.name || member.email}</span>
+                            </div>
+                        </td>
+                        <td class="py-4 px-4">
+                            <input type="number" placeholder="₹0" class="w-32 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-400 focus:border-transparent outline-none">
+                        </td>
+                        <td class="py-4 px-4 text-center">
+                            <button onclick="addExpenseColumn(this)" class="text-green-500 hover:text-green-600 transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+        }
+        
+        function addExpenseColumn(button) {
+            const table = button.closest('table');
+            const headerRow = table.querySelector('thead tr');
+            const bodyRows = table.querySelectorAll('tbody tr');
+            
+            // Count current expense columns (excluding Names and Actions)
+            const currentExpenseColumns = headerRow.children.length - 2;
+            const newColumnIndex = currentExpenseColumns + 1;
+            
+            // Add new header (before Actions column)
+            const newHeader = document.createElement('th');
+            newHeader.className = 'text-left py-3 px-4 font-medium text-gray-700 min-w-[150px]';
+            newHeader.textContent = `Expense ${newColumnIndex}`;
+            headerRow.insertBefore(newHeader, headerRow.lastElementChild);
+            
+            // Add new input to each row (before Actions column)
+            bodyRows.forEach(row => {
+                const newCell = document.createElement('td');
+                newCell.className = 'py-4 px-4';
+                newCell.innerHTML = `
+                    <input type="number" placeholder="₹0" class="w-32 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-400 focus:border-transparent outline-none">
+                `;
+                row.insertBefore(newCell, row.lastElementChild);
+            });
+            
+            showMessage('New expense column added!', 'success');
+        }
+        
+        function calculateGroupExpenses() {
+            const table = document.getElementById('groupExpenseTableBody');
+            const rows = table.querySelectorAll('tr');
+            
+            if (rows.length === 0) {
+                alert('No members found to calculate expenses');
+                return;
+            }
+            
+            let memberData = [];
+            let totalExpenses = 0;
+            
+            // Collect data from each member
+            rows.forEach(row => {
+                const memberName = row.querySelector('span').textContent;
+                const inputs = row.querySelectorAll('input[type="number"]');
+                let memberTotal = 0;
+                
+                inputs.forEach(input => {
+                    const value = parseFloat(input.value) || 0;
+                    memberTotal += value;
+                });
+                
+                memberData.push({
+                    name: memberName,
+                    total: memberTotal,
+                    avatar: row.querySelector('.rounded-full')
+                });
+                
+                totalExpenses += memberTotal;
+            });
+            
+            if (totalExpenses === 0) {
+                alert('Please enter at least one expense amount');
+                return;
+            }
+            
+            const perPersonAmount = totalExpenses / memberData.length;
+            
+            // Update modal content
+            document.getElementById('totalAmount').textContent = `₹${totalExpenses.toFixed(2)}`;
+            document.getElementById('perPersonAmount').textContent = `₹${perPersonAmount.toFixed(2)}`;
+            document.getElementById('memberCount').textContent = memberData.length;
+            
+            // Generate individual breakdown
+            const individualBreakdown = document.getElementById('individualBreakdown');
+            individualBreakdown.innerHTML = '';
+            
+            memberData.forEach(member => {
+                const balance = member.total - perPersonAmount;
+                const balanceClass = balance >= 0 ? 'text-green-600' : 'text-red-600';
+                const balanceText = balance >= 0 ? `Gets back ₹${balance.toFixed(2)}` : `Owes ₹${Math.abs(balance).toFixed(2)}`;
+                
+                const memberDiv = document.createElement('div');
+                memberDiv.className = 'flex items-center justify-between p-3 bg-white rounded-lg border';
+                memberDiv.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 ${member.avatar.className.split(' ').find(c => c.startsWith('bg-'))} rounded-full flex items-center justify-center text-white font-medium">
+                            ${member.name.charAt(0)}
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-800">${member.name}</div>
+                            <div class="text-sm text-gray-600">Paid: ₹${member.total.toFixed(2)}</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="${balanceClass} font-semibold">${balanceText}</div>
+                        <div class="text-sm text-gray-600">Share: ₹${perPersonAmount.toFixed(2)}</div>
+                    </div>
+                `;
+                individualBreakdown.appendChild(memberDiv);
+            });
+            
+            // Generate settlement instructions
+            const settlementInstructions = document.getElementById('settlementInstructions');
+            settlementInstructions.innerHTML = '';
+            
+            const creditors = memberData.filter(m => m.total > perPersonAmount);
+            const debtors = memberData.filter(m => m.total < perPersonAmount);
+            
+            if (creditors.length === 0 && debtors.length === 0) {
+                settlementInstructions.innerHTML = '<div class="text-center text-green-600 font-medium">All expenses are perfectly split! No settlements needed.</div>';
+            } else {
+                let settlements = [];
+                let creditorBalances = creditors.map(c => ({ name: c.name, amount: c.total - perPersonAmount }));
+                let debtorBalances = debtors.map(d => ({ name: d.name, amount: perPersonAmount - d.total }));
+                
+                creditorBalances.forEach(creditor => {
+                    debtorBalances.forEach(debtor => {
+                        if (creditor.amount > 0 && debtor.amount > 0) {
+                            const settlementAmount = Math.min(creditor.amount, debtor.amount);
+                            if (settlementAmount > 0.01) { // Avoid tiny amounts
+                                settlements.push({
+                                    from: debtor.name,
+                                    to: creditor.name,
+                                    amount: settlementAmount
+                                });
+                                creditor.amount -= settlementAmount;
+                                debtor.amount -= settlementAmount;
+                            }
+                        }
+                    });
+                });
+                
+                if (settlements.length === 0) {
+                    settlementInstructions.innerHTML = '<div class="text-center text-green-600 font-medium">No settlements needed!</div>';
+                } else {
+                    settlements.forEach(settlement => {
+                        const settlementDiv = document.createElement('div');
+                        settlementDiv.className = 'flex items-center justify-between p-3 bg-blue-50 rounded-lg';
+                        settlementDiv.innerHTML = `
+                            <div class="flex items-center space-x-2">
+                                <span class="font-medium text-gray-800">${settlement.from}</span>
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                                </svg>
+                                <span class="font-medium text-gray-800">${settlement.to}</span>
+                            </div>
+                            <div class="font-semibold text-blue-600">₹${settlement.amount.toFixed(2)}</div>
+                        `;
+                        settlementInstructions.appendChild(settlementDiv);
+                    });
+                }
+            }
+            
+            // Show modal
+            document.getElementById('calculationModal').classList.remove('hidden');
+        }
+        
+        function closeCalculationModal() {
+            document.getElementById('calculationModal').classList.add('hidden');
+        }
+        
+        function exportCalculation() {
+            const totalAmount = document.getElementById('totalAmount').textContent;
+            const perPersonAmount = document.getElementById('perPersonAmount').textContent;
+            const memberCount = document.getElementById('memberCount').textContent;
+            const groupTitle = currentGroup ? currentGroup.name : 'Group';
+            
+            let exportText = `${groupTitle} - Expense Calculation\n`;
+            exportText += `${'='.repeat(groupTitle.length + 20)}\n\n`;
+            exportText += `Summary:\n`;
+            exportText += `- Total Expenses: ${totalAmount}\n`;
+            exportText += `- Per Person: ${perPersonAmount}\n`;
+            exportText += `- Members: ${memberCount}\n\n`;
+            
+            exportText += `Individual Breakdown:\n`;
+            const individualItems = document.querySelectorAll('#individualBreakdown > div');
+            individualItems.forEach(item => {
+                const name = item.querySelector('.font-medium').textContent;
+                const paid = item.querySelector('.text-sm').textContent;
+                const balance = item.querySelector('.font-semibold').textContent;
+                exportText += `- ${name}: ${paid}, ${balance}\n`;
+            });
+            
+            exportText += `\nSettlements:\n`;
+            const settlementItems = document.querySelectorAll('#settlementInstructions > div');
+            if (settlementItems.length === 0 || settlementItems[0].textContent.includes('No settlements')) {
+                exportText += `- No settlements needed!\n`;
+            } else {
+                settlementItems.forEach(item => {
+                    const text = item.textContent.replace(/\s+/g, ' ').trim();
+                    exportText += `- ${text}\n`;
+                });
+            }
+            
+            // Create and download file
+            const blob = new Blob([exportText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${groupTitle.replace(/[^a-zA-Z0-9]/g, '_')}_expense_calculation.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showMessage('Calculation results exported successfully!', 'success');
+        }
+        
+        async function exportExpenseData() {
+            if (!currentGroup) {
+                alert('Please select a group first');
+                return;
+            }
+            
+            const table = document.getElementById('groupExpenseTableBody');
+            const rows = table.querySelectorAll('tr');
+            
+            if (rows.length === 0) {
+                alert('No members found to export');
+                return;
+            }
+            
+            let memberData = [];
+            let totalExpenses = 0;
+            
+            // Collect data from each member
+            rows.forEach(row => {
+                const memberName = row.querySelector('span').textContent;
+                const inputs = row.querySelectorAll('input[type="number"]');
+                let memberTotal = 0;
+                
+                inputs.forEach(input => {
+                    const value = parseFloat(input.value) || 0;
+                    memberTotal += value;
+                });
+                
+                memberData.push({
+                    name: memberName,
+                    total: memberTotal,
+                    email: `${memberName.toLowerCase().replace(/\s+/g, '')}@example.com` // Mock email
+                });
+                
+                totalExpenses += memberTotal;
+            });
+            
+            if (totalExpenses === 0) {
+                alert('Please enter at least one expense amount before exporting');
+                return;
+            }
+            
+            const perPersonAmount = totalExpenses / memberData.length;
+            
+            // Calculate who owes what
+            const settlements = [];
+            const creditors = [];
+            const debtors = [];
+            
+            memberData.forEach(member => {
+                const balance = member.total - perPersonAmount;
+                if (balance > 0.01) {
+                    creditors.push({ ...member, amount: balance });
+                } else if (balance < -0.01) {
+                    debtors.push({ ...member, amount: Math.abs(balance) });
+                }
+            });
+            
+            // Generate settlement instructions
+            creditors.forEach(creditor => {
+                debtors.forEach(debtor => {
+                    if (creditor.amount > 0 && debtor.amount > 0) {
+                        const settlementAmount = Math.min(creditor.amount, debtor.amount);
+                        if (settlementAmount > 0.01) {
+                            settlements.push({
+                                from: debtor.name,
+                                fromEmail: debtor.email,
+                                to: creditor.name,
+                                toEmail: creditor.email,
+                                amount: settlementAmount
+                            });
+                            creditor.amount -= settlementAmount;
+                            debtor.amount -= settlementAmount;
+                        }
+                    }
+                });
+            });
+            
+            // Prepare export data
+            const exportData = {
+                groupName: currentGroup.name,
+                totalAmount: totalExpenses,
+                perPersonAmount: perPersonAmount,
+                memberCount: memberData.length,
+                settlements: settlements,
+                timestamp: new Date().toISOString()
+            };
+            
+            try {
+                showLoading();
+                const response = await fetch(`${API_BASE}/export-expense-data`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(exportData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Export failed');
+                }
+                
+                const result = await response.json();
+                showMessage('Export successful! Email notifications sent to all members.', 'success');
+                
+                // Also download local copy
+                downloadExpenseReport(exportData);
+            } catch (error) {
+                console.log('Backend API not available, downloading local copy instead');
+                
+                // Fallback: Download local file and show mock email notification
+                downloadExpenseReport(exportData);
+                showMessage('Data exported locally. Email notifications would be sent in production.', 'success');
+                
+                // Show mock email preview
+                showEmailPreview(settlements);
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        function downloadExpenseReport(exportData) {
+            const reportContent = `
+SPLITX EXPENSE REPORT
+=====================
+Group: ${exportData.groupName}
+Date: ${new Date(exportData.timestamp).toLocaleDateString()}
+Total Amount: ₹${exportData.totalAmount.toFixed(2)}
+Per Person: ₹${exportData.perPersonAmount.toFixed(2)}
+Members: ${exportData.memberCount}
+
+SETTLEMENT INSTRUCTIONS:
+${exportData.settlements.length === 0 ? 'No settlements needed - all expenses are perfectly split!' : 
+exportData.settlements.map(s => 
+`${s.from} owes ${s.to}: ₹${s.amount.toFixed(2)}`
+).join('\n')}
+
+Generated by SplitX - Smart Expense Splitting
+            `.trim();
+            
+            const blob = new Blob([reportContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `splitx-report-${exportData.groupName}-${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        function showEmailPreview(settlements) {
+            if (settlements.length === 0) return;
+            
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4';
+            modal.innerHTML = `
+                <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6 max-h-[80vh] overflow-y-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-semibold text-sage-800">Email Notifications Preview</h3>
+                        <button onclick="this.closest('.fixed').remove()" class="text-sage-400 hover:text-sage-600 text-2xl">&times;</button>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-blue-800 mb-2">📧 Emails that would be sent:</h4>
+                            <div class="space-y-2 text-sm">
+                                ${settlements.map(s => `
+                                    <div class="bg-white p-3 rounded border-l-4 border-blue-400">
+                                        <strong>To: ${s.fromEmail}</strong><br>
+                                        Subject: Payment Required - ${currentGroup.name}<br>
+                                        Message: You owe ₹${s.amount.toFixed(2)} to ${s.to}
+                                    </div>
+                                    <div class="bg-white p-3 rounded border-l-4 border-green-400">
+                                        <strong>To: ${s.toEmail}</strong><br>
+                                        Subject: Payment Incoming - ${currentGroup.name}<br>
+                                        Message: ${s.from} owes you ₹${s.amount.toFixed(2)}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <button onclick="this.closest('.fixed').remove()" class="bg-sage-600 text-white px-6 py-2 rounded-lg hover:bg-sage-700 transition-colors">
+                                Close Preview
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+        
+        // Expense Management
+        async function addExpense(amount, description, paidBy, groupId) {
+            try {
+                showLoading();
+                
+                // Get group details to get all members for splitBetween
+                const groupResponse = await fetch(`${API_BASE}/groups/${groupId}`);
+                if (!groupResponse.ok) {
+                    throw new Error('Failed to get group details');
+                }
+                
+                const group = await groupResponse.json();
+                const splitBetween = group.members.map(member => member._id);
+                
+                const response = await fetch(`${API_BASE}/expenses`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        amount: parseFloat(amount),
+                        description,
+                        paidBy,
+                        groupId,
+                        splitBetween
+                    }),
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to add expense');
+                }
+                
+                const expense = await response.json();
+                const splitAmount = (amount / group.members.length).toFixed(2);
+                showMessage(`Expense added! Split: ₹${splitAmount} per member`, 'success');
+                hideAddExpense();
+                await loadExpenses();
+                if (currentGroup) {
+                    await loadGroupDetails(currentGroup._id);
+                }
+            } catch (error) {
+                showMessage('Failed to add expense: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        async function loadExpenses() {
+            try {
+                showLoading();
+                // Collect all expenses from all groups
+                expenses = [];
+                
+                for (const group of groups) {
+                    const response = await fetch(`${API_BASE}/groups/${group._id}/expenses`);
+                    if (response.ok) {
+                        const groupExpenses = await response.json();
+                        expenses.push(...groupExpenses);
+                    }
+                }
+                
+                renderExpenses();
+            } catch (error) {
+                showMessage('Failed to load expenses: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        async function deleteExpense(expenseId) {
+            if (confirm('Are you sure you want to delete this expense?')) {
+                try {
+                    showLoading();
+                    const response = await fetch(`${API_BASE}/expenses/${expenseId}`, {
+                        method: 'DELETE',
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to delete expense');
+                    }
+                    
+                    showMessage('Expense deleted successfully!', 'success');
+                    await loadExpenses();
+                    if (currentGroup) {
+                        await loadGroupDetails(currentGroup._id);
+                    }
+                } catch (error) {
+                    showMessage('Failed to delete expense: ' + error.message, 'error');
+                } finally {
+                    hideLoading();
+                }
+            }
+        }
+        
+        // Transaction Management
+        async function addTransaction(payer, receiver, amount) {
+            try {
+                showLoading();
+                
+                // Find a group that contains both payer and receiver
+                let targetGroup = null;
+                for (const group of groups) {
+                    const payerInGroup = group.members.some(m => m._id === payer || m.email === payer);
+                    const receiverInGroup = group.members.some(m => m._id === receiver || m.email === receiver);
+                    
+                    if (payerInGroup && receiverInGroup) {
+                        targetGroup = group;
+                        break;
+                    }
+                }
+                
+                if (!targetGroup) {
+                    throw new Error('No common group found for payer and receiver');
+                }
+                
+                const response = await fetch(`${API_BASE}/settlements`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        groupId: targetGroup._id,
+                        fromUser: payer,
+                        toUser: receiver,
+                        amount: parseFloat(amount)
+                    }),
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to record transaction');
+                }
+                
+                showMessage('Transaction recorded successfully!', 'success');
+                document.getElementById('transaction-form').reset();
+                await loadSettlements();
+            } catch (error) {
+                showMessage('Failed to record transaction: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // Settlement Management
+        async function loadSettlements() {
+            try {
+                showLoading();
+                
+                // Load settlements for all groups
+                settlements = [];
+                for (const group of groups) {
+                    const response = await fetch(`${API_BASE}/groups/${group._id}/settlements`);
+                    if (response.ok) {
+                        const groupSettlements = await response.json();
+                        settlements.push(...groupSettlements);
+                    }
+                }
+                
+                renderSettlements();
+            } catch (error) {
+                showMessage('Failed to load settlements: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // Dashboard
+        async function loadDashboard() {
+            showAppPage('dashboard');
+            await loadGroups();
+            updateDashboardStats();
+        }
+        
+        function updateDashboardStats() {
+            // Update dashboard statistics
+            document.getElementById('active-groups').textContent = groups.length;
+            document.getElementById('trust-score').textContent = currentUser?.trustScore || 100;
+            
+            // Calculate total expenses for this month
+            const thisMonth = new Date().getMonth();
+            const thisYear = new Date().getFullYear();
+            let monthlyTotal = 0;
+            
+            expenses.forEach(expense => {
+                const expenseDate = new Date(expense.createdAt);
+                if (expenseDate.getMonth() === thisMonth && expenseDate.getFullYear() === thisYear) {
+                    monthlyTotal += expense.amount;
+                }
+            });
+            
+            document.getElementById('month-expenses').textContent = `₹${monthlyTotal.toFixed(2)}`;
+            document.getElementById('total-balance').textContent = '₹0'; // Placeholder
+        }
+        
+        function loadProfile() {
+            if (currentUser) {
+                document.getElementById('profile-name').value = currentUser.name || '';
+                document.getElementById('profile-email').value = currentUser.email || '';
+                document.getElementById('profile-trust-score').textContent = currentUser.trustScore || 100;
+                document.getElementById('profile-groups-count').textContent = groups.length;
+                
+                // Render badges
+                const badgesContainer = document.getElementById('profile-badges').querySelector('.flex');
+                badgesContainer.innerHTML = '';
+                if (currentUser.badges && currentUser.badges.length > 0) {
+                    currentUser.badges.forEach(badge => {
+                        const badgeEl = document.createElement('span');
+                        badgeEl.className = 'px-3 py-1 bg-sage-100 text-sage-700 rounded-full text-sm';
+                        badgeEl.textContent = badge;
+                        badgesContainer.appendChild(badgeEl);
+                    });
+                } else {
+                    badgesContainer.innerHTML = '<span class="text-sage-500 text-sm">No badges yet</span>';
+                }
+            }
+        }
+        
+        // Render Functions
+        function renderGroups() {
+            const container = document.getElementById('groups-list');
+            container.innerHTML = '';
+            
+            if (groups.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <div class="text-6xl mb-4">👥</div>
+                        <h3 class="text-xl font-semibold text-sage-800 mb-2">No groups yet</h3>
+                        <p class="text-sage-600 mb-4">Create your first group to start tracking expenses</p>
+                        <button onclick="showCreateGroup()" class="bg-sage-600 text-white px-6 py-3 rounded-lg hover:bg-sage-700 transition-colors">
+                            Create Your First Group
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            groups.forEach(group => {
+                const groupCard = document.createElement('div');
+                groupCard.className = 'bg-white rounded-xl shadow-lg p-6 border border-sage-100 hover:shadow-xl transition-shadow cursor-pointer';
+                groupCard.onclick = () => {
+                    loadGroupDetails(group._id);
+                };
+                
+                groupCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-sage-800">${group.name}</h3>
+                        <span class="text-2xl">👥</span>
+                    </div>
+                    <p class="text-sage-600 mb-2">${group.members?.length || 0} members</p>
+                    <p class="text-sage-600 mb-4">${group.expenses?.length || 0} expenses</p>
+                    <div class="flex justify-between items-center text-sm text-sage-500">
+                        <span>Active</span>
+                        <span>→</span>
+                    </div>
+                `;
+                
+                container.appendChild(groupCard);
+            });
+        }
+        
+        function renderRecentGroups() {
+            const container = document.getElementById('recent-groups');
+            container.innerHTML = '';
+            
+            const recentGroups = groups.slice(0, 3);
+            
+            if (recentGroups.length === 0) {
+                container.innerHTML = '<p class="text-sage-500 text-sm">No groups yet</p>';
+                return;
+            }
+            
+            recentGroups.forEach(group => {
+                const groupItem = document.createElement('div');
+                groupItem.className = 'flex items-center justify-between p-3 bg-sage-50 rounded-lg hover:bg-sage-100 transition-colors cursor-pointer';
+                groupItem.onclick = () => {
+                    loadGroupDetails(group._id);
+                };
+                
+                groupItem.innerHTML = `
+                    <div>
+                        <p class="font-medium text-sage-800">${group.name}</p>
+                        <p class="text-sm text-sage-600">${group.members?.length || 0} members</p>
+                    </div>
+                    <span class="text-sage-400">→</span>
+                `;
+                
+                container.appendChild(groupItem);
+            });
+        }
+        
+        function renderGroupDetails() {
+            if (!currentGroup) return;
+            
+            document.getElementById('group-details-name').textContent = currentGroup.name;
+            
+            // Render members
+            const membersContainer = document.getElementById('group-members-list');
+            membersContainer.innerHTML = '';
+            
+            if (currentGroup.members) {
+                currentGroup.members.forEach(member => {
+                    const memberItem = document.createElement('div');
+                    memberItem.className = 'flex items-center justify-between p-2 bg-sage-50 rounded-lg';
+                    memberItem.innerHTML = `
+                        <span class="text-sage-800">${member.name || member.email}</span>
+                        <span class="text-xs px-2 py-1 bg-sage-200 text-sage-700 rounded-full">Active</span>
+                    `;
+                    membersContainer.appendChild(memberItem);
+                });
+            }
+            
+            // Render expenses
+            const expensesContainer = document.getElementById('group-expenses-list');
+            expensesContainer.innerHTML = '';
+            
+            if (currentGroup.expenses && currentGroup.expenses.length > 0) {
+                currentGroup.expenses.forEach(expense => {
+                    const expenseItem = document.createElement('div');
+                    expenseItem.className = 'flex items-center justify-between p-3 bg-beige-50 rounded-lg';
+                    expenseItem.innerHTML = `
+                        <div>
+                            <p class="font-medium text-sage-800">${expense.description}</p>
+                            <p class="text-sm text-sage-600">Paid by ${expense.paidBy.name || expense.paidBy.email} • ${new Date(expense.createdAt).toLocaleDateString()}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold text-sage-800">₹${expense.amount}</p>
+                            <button onclick="deleteExpense('${expense._id}')" class="text-red-500 hover:text-red-700 text-sm">Delete</button>
+                        </div>
+                    `;
+                    expensesContainer.appendChild(expenseItem);
+                });
+            } else {
+                expensesContainer.innerHTML = '<p class="text-sage-500 text-sm">No expenses yet</p>';
+            }
+            
+            // Render transactions
+            const transactionsContainer = document.getElementById('group-transactions-list');
+            transactionsContainer.innerHTML = '';
+            
+            if (currentGroup.transactions && currentGroup.transactions.length > 0) {
+                currentGroup.transactions.forEach(transaction => {
+                    const transactionItem = document.createElement('div');
+                    transactionItem.className = 'flex items-center justify-between p-3 bg-sage-50 rounded-lg';
+                    transactionItem.innerHTML = `
+                        <div>
+                            <p class="font-medium text-sage-800">${transaction.fromUser.name || transaction.fromUser.email} → ${transaction.toUser.name || transaction.toUser.email}</p>
+                            <p class="text-sm text-sage-600">${new Date(transaction.createdAt).toLocaleDateString()}</p>
+                        </div>
+                        <p class="font-semibold text-sage-800">₹${transaction.amount}</p>
+                    `;
+                    transactionsContainer.appendChild(transactionItem);
+                });
+            } else {
+                transactionsContainer.innerHTML = '<p class="text-sage-500 text-sm">No transactions yet</p>';
+            }
+        }
+        
+        function renderExpenses() {
+            const container = document.getElementById('expenses-list');
+            container.innerHTML = '';
+            
+            if (expenses.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12">
+                        <div class="text-6xl mb-4">💸</div>
+                        <h3 class="text-xl font-semibold text-sage-800 mb-2">No expenses yet</h3>
+                        <p class="text-sage-600">Add your first expense to get started</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            expenses.forEach(expense => {
+                const expenseItem = document.createElement('div');
+                expenseItem.className = 'flex items-center justify-between p-4 border border-sage-200 rounded-lg';
+                expenseItem.innerHTML = `
+                    <div>
+                        <h4 class="font-medium text-sage-800">${expense.description}</h4>
+                        <p class="text-sm text-sage-600">Paid by ${expense.paidBy.name || expense.paidBy.email} • ${new Date(expense.createdAt).toLocaleDateString()}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-semibold text-sage-800">₹${expense.amount}</p>
+                        <button onclick="deleteExpense('${expense._id}')" class="text-red-500 hover:text-red-700 text-sm">Delete</button>
+                    </div>
+                `;
+                container.appendChild(expenseItem);
+            });
+        }
+        
+        function renderSettlements() {
+            // Render user balances (placeholder)
+            const balancesContainer = document.getElementById('user-balances');
+            balancesContainer.innerHTML = `
+                <div class="text-center py-8">
+                    <div class="text-4xl mb-2">💰</div>
+                    <p class="text-sage-600">Your balances will appear here</p>
+                </div>
+            `;
+            
+            // Render suggested settlements (placeholder)
+            const settlementsContainer = document.getElementById('suggested-settlements');
+            settlementsContainer.innerHTML = `
+                <div class="text-center py-8">
+                    <div class="text-4xl mb-2">🤝</div>
+                    <p class="text-sage-600">Settlement suggestions will appear here</p>
+                </div>
+            `;
+            
+            // Populate transaction form dropdowns
+            populateTransactionDropdowns();
+        }
+        
+        function populateTransactionDropdowns() {
+            const payerSelect = document.getElementById('transaction-payer');
+            const receiverSelect = document.getElementById('transaction-receiver');
+            
+            // Clear existing options
+            payerSelect.innerHTML = '<option value="">Select payer...</option>';
+            receiverSelect.innerHTML = '<option value="">Select receiver...</option>';
+            
+            // Add members from all groups
+            const allMembers = new Set();
+            groups.forEach(group => {
+                if (group.members) {
+                    group.members.forEach(member => {
+                        allMembers.add(JSON.stringify(member));
+                    });
+                }
+            });
+            
+            allMembers.forEach(memberStr => {
+                const member = JSON.parse(memberStr);
+                payerSelect.innerHTML += `<option value="${member._id}">${member.name || member.email}</option>`;
+                receiverSelect.innerHTML += `<option value="${member._id}">${member.name || member.email}</option>`;
+            });
+        }
+        
+        // Modal Functions
+        function showCreateUserModal() {
+            document.getElementById('create-user-modal').classList.remove('hidden');
+        }
+        
+        function hideCreateUserModal() {
+            document.getElementById('create-user-modal').classList.add('hidden');
+        }
+        
+        function showCreateGroup() {
+            document.getElementById('create-group-modal').classList.remove('hidden');
+        }
+        
+        function hideCreateGroup() {
+            document.getElementById('create-group-modal').classList.add('hidden');
+            document.getElementById('create-group-form').reset();
+        }
+        
+        function showAddMember() {
+            document.getElementById('add-member-modal').classList.remove('hidden');
+        }
+        
+        function hideAddMember() {
+            document.getElementById('add-member-modal').classList.add('hidden');
+            document.getElementById('add-member-form').reset();
+        }
+        
+        function showDeleteMember() {
+            if (!currentGroup) return;
+            
+            // Populate member dropdown
+            const select = document.getElementById('delete-member-select');
+            select.innerHTML = '<option value="">Select member...</option>';
+            
+            currentGroup.members.forEach(member => {
+                select.innerHTML += `<option value="${member._id}">${member.name || member.email}</option>`;
+            });
+            
+            document.getElementById('delete-member-modal').classList.remove('hidden');
+        }
+        
+        function hideDeleteMember() {
+            document.getElementById('delete-member-modal').classList.add('hidden');
+            document.getElementById('delete-member-form').reset();
+        }
+        
+        function showAddExpense() {
+            // Populate group dropdown
+            const groupSelect = document.getElementById('expense-group');
+            groupSelect.innerHTML = '<option value="">Select group...</option>';
+            
+            groups.forEach(group => {
+                groupSelect.innerHTML += `<option value="${group._id}">${group.name}</option>`;
+            });
+            
+            document.getElementById('add-expense-modal').classList.remove('hidden');
+        }
+        
+        function showAddExpenseToGroup() {
+            showAddExpense();
+            if (currentGroup) {
+                document.getElementById('expense-group').value = currentGroup._id;
+                updateExpensePayerOptions();
+            }
+        }
+        
+        function hideAddExpense() {
+            document.getElementById('add-expense-modal').classList.add('hidden');
+            document.getElementById('add-expense-form').reset();
+        }
+        
+        function updateExpensePayerOptions() {
+            const groupId = document.getElementById('expense-group').value;
+            const payerSelect = document.getElementById('expense-payer');
+            
+            payerSelect.innerHTML = '<option value="">Select member...</option>';
+            
+            const selectedGroup = groups.find(g => g._id == groupId);
+            if (selectedGroup && selectedGroup.members) {
+                selectedGroup.members.forEach(member => {
+                    payerSelect.innerHTML += `<option value="${member._id}">${member.name || member.email}</option>`;
+                });
+            }
+        }
+        
+        function showSignIn() {
+            document.getElementById('signin-modal').classList.remove('hidden');
+        }
+        
+        function hideSignIn() {
+            document.getElementById('signin-modal').classList.add('hidden');
+        }
+        
+        function showSuccess() {
+            showPage('success-page');
+            createConfetti();
+        }
+        
+        // Confetti Animation
+        function createConfetti() {
+            const container = document.getElementById('confetti-container');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.animationDelay = Math.random() * 3 + 's';
+                confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                container.appendChild(confetti);
+            }
+            
+            // Clean up after animation
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 6000);
+        }
+        
+        // Utility Functions
+        function showLoading() {
+            document.getElementById('loading').classList.remove('hidden');
+        }
+        
+        function hideLoading() {
+            document.getElementById('loading').classList.add('hidden');
+        }
+        
+        function showMessage(message, type = 'info') {
+            const container = document.getElementById('message-container');
+            const messageEl = document.createElement('div');
+            
+            const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
+            
+            messageEl.className = `${bgColor} text-white px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full`;
+            messageEl.textContent = message;
+            
+            container.appendChild(messageEl);
+            
+            // Animate in
+            setTimeout(() => {
+                messageEl.classList.remove('translate-x-full');
+            }, 100);
+            
+            // Remove after 5 seconds
+            setTimeout(() => {
+                messageEl.classList.add('translate-x-full');
+                setTimeout(() => {
+                    if (container.contains(messageEl)) {
+                        container.removeChild(messageEl);
+                    }
+                }, 300);
+            }, 5000);
+        }
+        
+        // Event Listeners
+        document.getElementById('create-user-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('user-name').value;
+            const email = document.getElementById('user-email').value;
+            createUser(name, email);
+        });
+        
+        document.getElementById('create-group-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('group-name').value;
+            const members = document.getElementById('group-members').value;
+            createGroup(name, members);
+        });
+        
+        document.getElementById('add-member-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const memberEmail = document.getElementById('member-email').value;
+            if (currentGroup) {
+                addMemberToGroup(currentGroup._id, memberEmail);
+            }
+        });
+        
+        document.getElementById('delete-member-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const memberId = document.getElementById('delete-member-select').value;
+            if (currentGroup && memberId) {
+                deleteMemberFromGroup(currentGroup._id, memberId);
+            }
+        });
+        
+        document.getElementById('add-expense-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const amount = document.getElementById('expense-amount').value;
+            const description = document.getElementById('expense-description').value;
+            const paidBy = document.getElementById('expense-payer').value;
+            const groupId = document.getElementById('expense-group').value;
+            addExpense(amount, description, paidBy, groupId);
+        });
+        
+        document.getElementById('transaction-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const payer = document.getElementById('transaction-payer').value;
+            const receiver = document.getElementById('transaction-receiver').value;
+            const amount = document.getElementById('transaction-amount').value;
+            addTransaction(payer, receiver, amount);
+        });
+        
+        document.getElementById('profile-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('profile-name').value;
+            const email = document.getElementById('profile-email').value;
+            updateUser(name, email);
+        });
+        
+        document.getElementById('signin-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // For demo purposes, just create a user with the signin credentials
+            const email = document.getElementById('signin-email').value;
+            const name = email.split('@')[0]; // Use email prefix as name
+            createUser(name, email);
+            hideSignIn();
+        });
+        
+        // Update payer options when group changes
+        document.getElementById('expense-group').addEventListener('change', updateExpensePayerOptions);
+        
+        // Close modals when clicking outside
+        document.querySelectorAll('.fixed').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.add('hidden');
+                }
+            });
+        });
+        
+        // Chatbot Functions
+        function toggleChatbot() {
+            const chatWindow = document.getElementById('chatbot-window');
+            chatWindow.classList.toggle('hidden');
+            
+            if (!chatWindow.classList.contains('hidden')) {
+                // Focus on input when opening
+                setTimeout(() => {
+                    document.getElementById('chat-input').focus();
+                }, 100);
+            }
+        }
+        
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            
+            if (message) {
+                addUserMessage(message);
+                input.value = '';
+                
+                // Simulate bot response
+                setTimeout(() => {
+                    addBotResponse(message);
+                }, 1000);
+            }
+        }
+        
+        function sendQuickMessage(message) {
+            addUserMessage(message);
+            setTimeout(() => {
+                addBotResponse(message);
+            }, 1000);
+        }
+        
+        function addUserMessage(message) {
+            const messagesContainer = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'flex items-start space-x-2 justify-end';
+            messageDiv.innerHTML = `
+                <div class="bg-splitx-green text-white rounded-2xl rounded-tr-sm p-3 max-w-xs">
+                    <p class="text-sm">${message}</p>
+                </div>
+                <div class="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center text-xs">👤</div>
+            `;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        async function addBotResponse(userMessage) {
+            const messagesContainer = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'flex items-start space-x-2';
+            
+            let response;
+            try {
+                const data = await fetch(`${API_BASE}/chatbot`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: userMessage }),
+                });
+                
+                if (data.ok) {
+                    const result = await data.json();
+                    response = result.reply;
+                } else {
+                    response = getBotResponse(userMessage);
+                }
+            } catch (e) {
+                response = getBotResponse(userMessage);
+            }
+            
+            messageDiv.innerHTML = `
+                <div class="w-6 h-6 bg-splitx-green rounded-full flex items-center justify-center text-white text-xs">🤖</div>
+                <div class="bg-gray-100 rounded-2xl rounded-tl-sm p-3 max-w-xs">
+                    <p class="text-sm text-gray-800">${response}</p>
+                </div>
+            `;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        function getBotResponse(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            if (lowerMessage.includes('account') || lowerMessage.includes('create') || lowerMessage.includes('sign up')) {
+                return "To create an account, simply click the 'Get Started' button on the homepage! You'll just need to enter your name and email address. It's completely free and takes less than 30 seconds! 🚀";
+            }
+            
+            if (lowerMessage.includes('split') || lowerMessage.includes('work') || lowerMessage.includes('how')) {
+                return "SplitX makes expense splitting super easy! 💡 Here's how: 1) Create a group with your friends 2) Add expenses as they happen 3) We automatically calculate who owes what 4) Settle up with one-click payments via UPI! No more awkward money conversations! 😊";
+            }
+            
+            if (lowerMessage.includes('group') || lowerMessage.includes('friends')) {
+                return "Creating groups is simple! Once you're signed in, go to the Groups section and click 'Create Group'. Add your friends' emails (they don't need accounts yet), and you're ready to start tracking expenses together! 👥";
+            }
+            
+            if (lowerMessage.includes('payment') || lowerMessage.includes('settle') || lowerMessage.includes('upi')) {
+                return "Settling up is the best part! 💳 SplitX shows you exactly who owes what, then provides direct UPI payment links. Just click 'Pay Now' and you're done! We minimize the number of transactions needed too. 🎯";
+            }
+            
+            if (lowerMessage.includes('free') || lowerMessage.includes('cost') || lowerMessage.includes('price')) {
+                return "SplitX is completely free to use! 🎉 No hidden fees, no premium plans, no limits on groups or expenses. We believe expense splitting should be accessible to everyone! ✨";
+            }
+            
+            if (lowerMessage.includes('help') || lowerMessage.includes('support')) {
+                return "I'm here to help! 🤗 You can ask me about creating accounts, how splitting works, managing groups, making payments, or anything else about SplitX. What would you like to know?";
+            }
+            
+            if (lowerMessage.includes('hi') || lowerMessage.includes('hello') || lowerMessage.includes('hey')) {
+                return "Hello! 👋 Welcome to SplitX! I'm here to help you get started with the easiest way to split expenses with friends. What would you like to know?";
+            }
+            
+            // Default response
+            return "That's a great question! 🤔 SplitX is designed to make expense splitting effortless. You can create groups, add expenses, and settle up instantly with UPI payments. Would you like me to explain any specific feature? Or click 'Get Started' to try it out! 🌟";
+        }
+        
+        // Allow Enter key to send messages
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('chat-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
